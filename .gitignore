@@ -113,3 +113,5 @@ dmypy.json
 # Pyre type checker
 .pyre/
 /PMA/
+/test/
+/current_test/
