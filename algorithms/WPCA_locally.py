@@ -15,16 +15,16 @@ def createWeightCol(weight, marker, markerwithgap):
 
 	listClosest = []
 	for x in sortedDist:
-		if len(listClosest) > 3: break
+		if len(listClosest) > 1: break
 		if (x[1] > 0) and (x[0] not in markerwithgap):
 			listClosest.append(x[0])
 	# CMU 2000
 	weightScale = 500
 	MMweight = 0.001
 	weight_vector = np.exp(np.divide(-np.square(weight),(2*np.square(weightScale))))
+	weight_vector[listClosest] = 1
 	weight_vector[markerwithgap] = 0.001
 	weight_vector[marker] = MMweight
-	weight_vector[listClosest] = 1
 	return weight_vector
 
 
@@ -51,10 +51,11 @@ class reconstructGap():
 
 		m4 = np.ones((N_nogap.shape[0], 1)) * mean_N_nogap
 		m5 = np.ones((N_nogap.shape[0], 1)) * stdev_N_no_gaps
+		m6 = np.ones((N_zero.shape[0],1)) * mean_N_zero	
 
 		N_nogap = np.multiply(((N_nogap - m4) / m5), m3)
-		N_zero = np.copy(N_nogap)
-		N_zero[:, columnwithgap] = 0
+		N_zero = np.multiply(((N_zero-m6) / m5), m3)
+		# N_zero[:, columnwithgap] = 0
 
 
 		_, Sigma_nogap , U_N_nogap_VH = np.linalg.svd(N_nogap, full_matrices = False)
@@ -63,6 +64,7 @@ class reconstructGap():
 		U_N_zero = U_N_zero_VH.T
 
 		ksmall = max(get_zero(Sigma_zero), get_zero(Sigma_nogap))
+		ksmall2 = max(setting_rank(Sigma_zero), setting_rank(Sigma_nogap))
 		U_N_nogap = U_N_nogap[:, :ksmall]
 		U_N_zero = U_N_zero[:, :ksmall]
 		self.T_matrix = np.matmul(U_N_nogap.T , U_N_zero)
@@ -151,6 +153,55 @@ class interpolation_WPCA_local():
 		mean_N_zero = mean_N_zero.reshape((1, mean_N_zero.shape[0]))
 		stdev_N_no_gaps = np.std(N_nogap, 0)
 		stdev_N_no_gaps[np.where(stdev_N_no_gaps == 0)] = 1
+
+		# same as PCA_R2
+		# weightScale = 200
+		# MMweight = 0.2
+		# new_weight = [1] * 41
+		# for x in markerwithgap:
+		# 	new_weight[x] = 0.001
+
+		# new_weight = np.asarray(new_weight)
+
+		# column_weight = np.ravel(np.ones((3,1)) * new_weight, order='F')
+		# column_weight = column_weight.reshape((1, column_weight.shape[0]))
+		# m33 = np.matmul( np.ones((N_nogap.shape[0], 1)), column_weight)
+		# m4 = np.ones((N_nogap.shape[0],1))*mean_N_nogap
+		# m5 = np.ones((N_nogap.shape[0],1))*stdev_N_no_gaps
+		# m6 = np.ones((N_zero.shape[0],1))*mean_N_zero
+
+		# m1 = np.matmul(np.ones((AA.shape[0],1)),mean_N_zero)
+		# m2 = np.ones((AA.shape[0],1))*stdev_N_no_gaps
+		# m3 = np.matmul( np.ones((AA.shape[0], 1)), column_weight)
+		# AA = np.multiply(((AA-m1) / m2),m3)
+
+		# N_nogap = np.multiply(((N_nogap-m4)/ m5),m33)
+		# N_zero = np.multiply(((N_zero-m6) / m5),m33)
+		# _, Sigma_nogap , U_N_nogap_VH = np.linalg.svd(N_nogap, full_matrices = False)
+		# U_N_nogap = U_N_nogap_VH.T
+		# _, Sigma_zero , U_N_zero_VH = np.linalg.svd(N_zero, full_matrices = False)
+		# U_N_zero = U_N_zero_VH.T
+		# ksmall = max(setting_rank(Sigma_zero), setting_rank(Sigma_nogap))
+		# U_N_nogap = U_N_nogap[:, :ksmall]
+		# U_N_zero = U_N_zero[:, :ksmall]
+
+		# T_matrix =  np.matmul(U_N_nogap.T , U_N_zero)
+
+		# reconstruct = np.matmul(np.matmul(np.matmul(AA, U_N_zero), T_matrix), U_N_nogap.T)
+
+		# m7 = np.ones((AA.shape[0],1))*mean_N_nogap
+		# m8 = np.ones((AA.shape[0],1))*stdev_N_no_gaps
+		# m3 = np.matmul( np.ones((AA.shape[0], 1)), column_weight)
+		# reconstruct = m7 + (np.multiply(reconstruct, m8) / m3) + self.MeanMat
+
+		# result = reconstruct[-self.fix_leng:, :]
+
+		# final_result = np.copy(self.missing_matrix)
+		# final_result[np.where(self.missing_matrix == 0)] = result[np.where(self.missing_matrix == 0)]
+		
+		# self.result = final_result
+		# return
+
 
 		# compute Q mask:
 		self.listGapInfo = []

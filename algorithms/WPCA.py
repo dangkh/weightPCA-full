@@ -23,7 +23,7 @@ class reconstructGap():
         for x in markerwithgap:
             new_weight[x] = 0.001
 
-        new_weight[marker] = 0.1
+        new_weight[marker] = 0.02
         new_weight = np.asarray(new_weight)
         
         column_weight = np.ravel(np.ones((3, 1)) * new_weight, order='F')

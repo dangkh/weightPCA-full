@@ -60,7 +60,7 @@ def euclid_dist(X, Y):
 def get_zero(matrix):
     counter = 0
     for x in matrix:
-        if x > 0.01:
+        if x > 0.001:
             counter += 1
     return counter
 
@@ -116,7 +116,7 @@ def read_tracking_data3D_without_RJ(data_dir, patch):
 
 
 def setting_rank(eigen_vector):
-    minCumSV = 0.99
+    minCumSV = 0.95
     current_sum = 0
     sum_list = np.sum(eigen_vector)
     for x in range(len(eigen_vector)):

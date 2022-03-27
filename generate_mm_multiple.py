@@ -7,11 +7,11 @@ import random
 from datetime import datetime
 
 def generate_missing_joint_gap(n, m, number_gap):
-	frames = 120
+	frames = 350
 	matrix = np.ones((n,m))
 	joints = np.arange(m//3 - 1)
 	np.random.shuffle(joints)
-	missing_joint = 14
+	# missing_joint = 14
 	counter = 0
 	while counter < number_gap:
 		missing_joint = joints[counter]
@@ -39,7 +39,7 @@ def generate_missing_joint_gap(n, m, number_gap):
 
 def process_gap_missing():
 	test_location = arg.test_link
-	gaps = [3]
+	gaps = [3, 6, 9]
 	test_reference = arg.missing_index
 	sample = np.copy(Tracking3D[test_reference[0]:test_reference[1]])
 
